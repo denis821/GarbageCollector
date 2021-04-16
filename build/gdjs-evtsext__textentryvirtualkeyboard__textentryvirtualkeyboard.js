@@ -62,10 +62,6 @@ gdjs._extensionMobileKeyboard.openKeyboard = function (eventsFunctionContext) {
         input.value = textEntry.getString();
         //input.style.setProperty("visibility", "visible");
         input.focus();
-        let ios = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-        if(ios){
-            input.style.setProperty("visibility", "hidden");
-          }
       //  
     }
 }
@@ -86,7 +82,6 @@ gdjs._extensionMobileKeyboard.closeKeyboard = function (eventsFunctionContext) {
         var textEntry = eventsFunctionContext.getObjects("Object")[0];
         textEntry.setString(input.value);
         //input.blur();
-        input.style.setProperty("visibility", "hidden");
     }
 }
 
@@ -132,13 +127,22 @@ if (object.getBehavior("TextEntryVirtualKeyboard")._behaviorData["typeInput"] ==
 }
 
 input.setAttribute("spellcheck", "false"); // Disable spell checking (blue line on mobile under words)
-input.style = "background-color: transparent;border: 0px;outline: transparent;color: #0000; maxlength: 15";
+input.style = "transform: translateX(-200%);";
 // Create an identifier that is unique
 var uniqueId = "Input1";
 input.id = uniqueId; // Apply it to the input
 setUniqueIdInObject(uniqueId); // Apply it to the object
 
 document.body.appendChild(input); // Add input to the document HTML
+
+const trapButton = document.createElement("button");
+
+trapButton.style = "width: 70%; height: 30%; position: absolute; z-index: 2; top: 25%; left: 50%; opacity: 0; transform: translateX(-50%);"
+trapButton.addEventListener("touchstart", function() {
+    input.focus();
+});
+document.body.appendChild(trapButton);
+input.trapButton = trapButton;
 
 // Handle key presses on the input
 input.addEventListener("keyup", function (event) {
@@ -495,6 +499,9 @@ gdjs._extensionMobileKeyboard = gdjs._extensionMobileKeyboard || {};
 var uniqueID = gdjs._extensionMobileKeyboard.getUniqueIdInObject(eventsFunctionContext);
 var element = document.getElementById(uniqueID);
 if (element) {
+    if (element.trapButton) {
+        element.trapButton.remove();
+    }
     element.parentNode.removeChild(element);
 }
 };

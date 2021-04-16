@@ -52,7 +52,6 @@ gdjs._extensionMobileKeyboard.openKeyboard = function (eventsFunctionContext) {
     if (input) {
         var textEntry = eventsFunctionContext.getObjects("Object")[0];
         input.value = textEntry.getString();
-        input.style.removeProperty("visibility");
         input.focus();
     }
 }
@@ -62,7 +61,6 @@ gdjs._extensionMobileKeyboard.closeKeyboardById = function (uniqueID) {
     var input = document.getElementById(uniqueID);
     if (input) {
         input.blur();
-        input.style.setProperty("visibility", "hidden");
     }
 }
 
@@ -74,7 +72,6 @@ gdjs._extensionMobileKeyboard.closeKeyboard = function (eventsFunctionContext) {
         var textEntry = eventsFunctionContext.getObjects("Object")[0];
         textEntry.setString(input.value);
         input.blur();
-        input.style.setProperty("visibility", "hidden");
     }
 }
 
@@ -94,7 +91,7 @@ var setUniqueIdInObject = function (id) {
 const input = document.createElement("input");
 input.type = "text";
 input.setAttribute("spellcheck", "false"); // Disable spell checking (blue line on mobile under words)
-input.style = "background-color: transparent;border: 0px;outline: transparent;color: #0000;";
+input.style = "transform: translateX(-200%);";
 
 // Create an identifier that is unique
 var uniqueId = "GDevelop_Mobile_Keyboard_Input" + Date.now() + '-' + Math.floor(Math.random() * 100000);
@@ -102,6 +99,15 @@ input.id = uniqueId; // Apply it to the input
 setUniqueIdInObject(uniqueId); // Apply it to the object
 
 document.body.appendChild(input); // Add input to the document HTML
+
+const trapButton = document.createElement("button");
+
+trapButton.style = "width: 70%; height: 30%; position: absolute; z-index: 2; top: 25%; left: 50%; opacity: 0; transform: translateX(-50%);"
+trapButton.addEventListener("touchstart", function() {
+    input.focus();
+});
+document.body.appendChild(trapButton);
+input.trapButton = trapButton;
 
 // Handle key presses on the input
 input.addEventListener("keyup", function (event) {
@@ -438,6 +444,9 @@ gdjs._extensionMobileKeyboard = gdjs._extensionMobileKeyboard || {};
 var uniqueID = gdjs._extensionMobileKeyboard.getUniqueIdInObject(eventsFunctionContext);
 var element = document.getElementById(uniqueID);
 if (element) {
+    if (element.trapButton) {
+        element.trapButton.remove();
+    }
     element.parentNode.removeChild(element);
 }
 };
